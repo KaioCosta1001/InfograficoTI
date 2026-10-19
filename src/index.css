@@ -1,0 +1,373 @@
+/* ==========================================================================
+   TAILWIND CSS v4
+   https://tailwindcss.com/docs/installation/using-vite
+   O utilitário é só para facilitar estilos novos. As classes do infográfico
+   (.bloco, .elemento, etc.) continuam valendo, e qualquer utilitário do
+   Tailwind tem prioridade sobre elas — então dá para ajustar um elemento
+   pontualmente com className="rotate-3" sem precisar criar CSS novo.
+   ========================================================================== */
+@import "tailwindcss";
+
+/* ==========================================================================
+   RESET / BASE
+   Tudo aqui dentro de @layer base para o preflight do Tailwind não
+   atropelar o layout e para as utilitárias vencerem.
+   ========================================================================== */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* "clip" não cria área rolável, então nada de barra horizontal. */
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100%;
+    /* Tema escuro = preto, tema claro = branco (trocado pelo menu). */
+    background: #000;
+    color: #fff;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 320ms ease, color 320ms ease;
+  }
+
+  html[data-tema="claro"] body {
+    background: #ebebeb;
+    color: #111;
+  }
+
+  /* As imagens podem passar da largura do bloco (e são cortadas por ele). */
+  img {
+    max-width: none;
+  }
+
+  :root {
+    /* Cores só do modo de depuração. */
+    --debug-bloco: #ff2d78;
+    --debug-elemento: #00d1ff;
+    --debug-texto: #001018;
+  }
+}
+
+/* ==========================================================================
+   CLASSES DO INFOGRÁFICO
+   ========================================================================== */
+@layer components {
+  /* ---------------------------------------------------------------- PÁGINA */
+  .pagina {
+    width: 100%;
+    overflow-x: clip; /* elementos que saem do bloco são cortados */
+    /* mesma altura da navbar, para ela não cobrir o topo do infográfico */
+    padding-top: 80px;
+  }
+
+  @media (max-width: 640px) {
+    .pagina {
+      padding-top: 64px;
+    }
+  }
+
+  /* ---------------------------------------------------------------- BLOCO */
+  .bloco {
+    position: relative;
+    width: 100%;
+    margin: 0; /* blocos colados, um embaixo do outro */
+    padding: 0;
+    overflow-x: clip; /* corta o que ultrapassa a lateral do bloco */
+    overflow-y: visible; /* entrada de cima/baixo continua visível */
+  }
+
+  /* Fundo: largura total, sem corte e sem distorção (proporção natural). */
+  .bloco__fundo {
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Camada absoluta exatamente sobre a imagem renderizada. */
+  .bloco__elementos {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* -------------------------------------------------------------- ELEMENTO */
+  .elemento {
+    position: absolute;
+    display: block;
+  }
+
+  /* Ajuste fino interno da caixa (posicaoEmImagem) */
+  .elemento__ajuste {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Camada do arraste (transform x/y). Só existe em elementos arrastáveis. */
+  .elemento__arrasto {
+    width: 100%;
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .elemento__arrasto:active {
+    cursor: grabbing;
+  }
+
+  /* Camada da animação de scroll ou de entrada. */
+  .elemento__animacao {
+    width: 100%;
+    will-change: transform, opacity;
+  }
+
+  /* Camada do magnetismo: precisa ser separada porque também usa "rotate",
+     que já é do balanço contínuo. */
+  .elemento__magnetico {
+    position: relative;
+    width: 100%;
+  }
+
+  /* Sombra do arraste: cópia desfocada da própria imagem, então acompanha
+     o desenho sem precisar "desenhar" nada em CSS. Só transform/opacity
+     são animados; o blur é fixo. */
+  .elemento__sombra {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    filter: blur(10px) saturate(0.4) brightness(0.35);
+    transform-origin: center;
+    pointer-events: none;
+  }
+
+  .elemento__imagem {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: auto;
+    user-select: none;
+    -webkit-user-drag: none;
+    pointer-events: none;
+  }
+
+  .elemento__arrasto > * {
+    pointer-events: auto;
+  }
+
+  /* -------------------------------------------- MODO DEPURAÇÃO (?debug=true) */
+  .pagina--debug .bloco {
+    outline: 2px dashed var(--debug-bloco);
+    outline-offset: -2px;
+  }
+
+  .pagina--debug .elemento {
+    outline: 1px dashed var(--debug-elemento);
+    outline-offset: 0;
+  }
+
+  .pagina--debug .elemento__ajuste {
+    background-image: linear-gradient(45deg, rgba(0, 209, 255, 0.12) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(0, 209, 255, 0.12) 25%, transparent 25%);
+    background-size: 12px 12px;
+  }
+
+  .elemento__debug {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 2147483000;
+    display: block;
+    padding: 2px 5px;
+    border-radius: 3px;
+    background: var(--debug-elemento);
+    color: var(--debug-texto);
+    font: 600 10px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: nowrap;
+    text-transform: lowercase;
+  }
+
+  .bloco__debug {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 2147483000;
+    padding: 3px 7px;
+    border-radius: 3px;
+    background: var(--debug-bloco);
+    color: #fff;
+    font: 600 11px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .pagina--debug .aviso-debug {
+    position: fixed;
+    left: 12px;
+    bottom: 12px;
+    z-index: 2147483000;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: var(--debug-bloco);
+    color: #fff;
+    font: 600 11px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    pointer-events: none;
+  }
+
+  /* --------------------------------------------------------- MENOS MOVIMENTO */
+  @media (prefers-reduced-motion: reduce) {
+    .elemento__animacao {
+      will-change: auto;
+    }
+  }
+}
+
+/* ==========================================================================
+   BARRA DE PROGRESSO DE LEITURA
+   ========================================================================== */
+.barra-progresso {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 70; /* acima da navbar */
+  background: rgb(24, 24, 24);
+  pointer-events: none;
+}
+
+.barra-progresso__preenchimento {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: linear-gradient(90deg, #41801a 0%, #35ae26 35%, #44dc21 75%, #43f524 100%);
+}
+
+/* ==========================================================================
+   SUMÁRIO LATERAL
+   Só aparece quando há largura de sobra; em telas menores some para não
+   cobrir o conteúdo (você pode transformar em botão flutuante depois).
+   ========================================================================== */
+.sumario {
+  position: fixed;
+  left: 20px;
+  top: 12%;
+  transform: translateY(-50%);
+  z-index: 55;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 200px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgb(0, 0, 0);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (min-width: 1280px) {
+  .sumario {
+    display: flex;
+  }
+}
+
+.sumario__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #fffeff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  /* só cor/fundo e transform: sem layout shift */
+  transition: background-color 200ms ease, color 200ms ease, transform 200ms ease;
+}
+
+.sumario__item:hover {
+  background: rgba(0, 0, 0, 0.106);
+  color: #43178a;
+  transform: translateX(3px);
+}
+
+.sumario__marcador {
+  flex: 0 0 auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(117, 117, 117, 0.3);
+  transition: background-color 200ms ease, transform 200ms ease;
+}
+
+.sumario__item[data-ativo="sim"] {
+  background: #161616;
+  color: #fff;
+  font-weight: 700;
+}
+
+.sumario__item[data-ativo="sim"] .sumario__marcador {
+  background: #43d722;
+  transform: scale(1.5);
+}
+
+.sumario__item:focus-visible {
+  outline: 2px solid #43178a;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sumario__item:hover {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   BOTÃO VOLTAR AO TOPO
+   ========================================================================== */
+.voltar-topo {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 65;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: #fff;
+  background: linear-gradient(160deg, #4f4f4f 0%, #151515 55%, #000000 100%);
+  box-shadow: 0 10px 30px rgba(47, 15, 99, 0.45);
+  cursor: pointer;
+  /* arraste elástico, igual ao dos elementos do infográfico */
+  touch-action: none;
+  transition: 200ms ease;
+}
+
+.voltar-topo:hover {
+   transition:  200ms ease;
+  scale: 110%;
+  box-shadow: 0 14px 38px rgba(47, 15, 99, 0.6);
+}
+
+.voltar-topo:focus-visible {
+  outline: 2px solid #ffd83d;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voltar-topo {
+    touch-action: auto;
+  }
+}

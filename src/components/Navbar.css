@@ -1,0 +1,295 @@
+/* ==========================================================================
+   NAVBAR — TODAS AS VARIÁVEIS DE AJUSTE ESTÃO NO TOPO DESTE ARQUIVO
+   Troque aqui cor, altura, blur e escala. Nada precisa ser mudado no TSX.
+   ========================================================================== */
+:root {
+  /* ---- paleta (mesma usada na barra de progresso e no botão de topo) ---- */
+  --nav-roxo: #050505;
+  --nav-cinza: #3ad44a;
+  --nav-roxo-claro: #050505;
+  --nav-roxo-escuro: #000000;
+  --nav-texto: #ffffff;
+  --nav-texto-suave: rgba(255, 255, 255, 0.72);
+
+  /* ---- tamanhos ---- */
+  --nav-altura: 56px;
+  --nav-altura-encolhida: 52px;
+  /* Escala do conteúdo quando encolhe (logo e itens encolhem junto). */
+  --nav-escala: 0.86;
+  /* Sobe o conteúdo para ele continuar centralizado na barra menor. */
+  --nav-subida: -2px;
+
+  /* ---- efeito de vidro (estado encolhido) ---- */
+  --nav-opacidade: 1;
+  --nav-borrachao: 0px;
+
+  /* ---- dropdown ---- */
+  --nav-dropdown-fundo: #070707;
+  --nav-dropdown-texto: #f6f5f6;
+  --nav-dropdown-sombra: 0 18px 50px rgba(23, 22, 23, 0.35);
+  --nav-raio: 5px;
+  --nav-icone: #4e472d;
+}
+
+/* Estado encolhido: só a navbar declara estes valores. */
+.navbar--encolhida {
+  --nav-escala-y: 0.7; /* 80px -> 56px, via transform */
+  --nav-escala: 0.86;
+  --nav-subida: 5px;
+  --nav-opacidade: 0.62;
+  --nav-borrachao: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar__fundo,
+  .navbar__conteudo > * {
+    transition: none !important;
+  }
+}
+
+/* ========================================================================== */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-altura);
+  z-index: 60;
+  pointer-events: none; /* só as partes visíveis recebem o mouse */
+  color: var(--nav-texto);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* --- fundo: encolhe com scaleY para não distorcer o conteúdo --- */
+.navbar__fundo {
+  position: absolute;
+  inset: 0;
+  transform-origin: top center;
+  transform: scaleY(var(--nav-escala-y, 1));
+  background-color: color-mix(in srgb, var(--nav-roxo) calc(var(--nav-opacidade) * 100%), transparent);
+
+  -webkit-backdrop-filter: blur(var(--nav-borrachao)) saturate(150%);
+  backdrop-filter: blur(var(--nav-borrachao)) saturate(150%);
+  transition:
+    transform 340ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 340ms ease,
+    backdrop-filter 340ms ease;
+  pointer-events: auto;
+}
+
+/* --- conteúdo: itens encolhem e sobem junto com a barra --- */
+.navbar__conteudo {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 0 20px;
+}
+
+.navbar__item {
+  pointer-events: auto;
+  transform-origin: center;
+  transform: translateY(calc(-1 * var(--nav-subida))) scale(var(--nav-escala, 1));
+  transition: transform 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition-property: transform, color, background-color, opacity;
+}
+
+.navbar__botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 20px;
+  height: 30px;
+  background: transparent;
+  color: var(--nav-texto);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background-color 200ms ease, color 200ms ease, transform 160ms ease;
+}
+
+.navbar__botao:hover,
+.navbar__botao[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.navbar__botao:active {
+  transform: scale(0.95);
+}
+
+.navbar__botao:focus-visible {
+  outline: 2px solid var(--nav-icone);
+  outline-offset: 2px;
+}
+
+.navbar__logo {
+  display: block;
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  transition: height 340ms cubic-bezier(0.22, 1, 0.36, 1);
+  user-select: none;
+}
+
+.navbar--encolhida .navbar__logo {
+  height: 30px;
+}
+
+.navbar__config {
+  position: relative;
+}
+
+/* --- dropdown --- */
+.navbar__painel {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 250px;
+  padding: 14px;
+  border-radius: var(--nav-raio);
+  background: var(--nav-dropdown-fundo);
+  color: var(--nav-dropdown-texto);
+  box-shadow: var(--nav-dropdown-sombra);
+}
+
+.navbar__painel-titulo {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #c5c5c5;
+}
+
+.navbar__grupo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 4px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.navbar__grupo + .navbar__grupo {
+  border-top: 1px solid rgba(67, 23, 138, 0.12);
+}
+
+.navbar__separador {
+  height: 1px;
+  margin: 8px 0;
+  background: rgba(67, 23, 138, 0.12);
+}
+
+/* --- alternador de tema --- */
+.tema {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(216, 191, 255, 0.1);
+}
+
+.tema__botao {
+  border: 0;
+  border-radius: 999px;
+  padding: 5px 12px;
+  background: transparent;
+  color: #686868;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 200ms ease;
+}
+
+.tema__botao--ativo {
+  color: #ffffff;
+}
+
+.tema__bolinha {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 6px;
+  border-radius: 50%;
+  vertical-align: -1px;
+  background: currentColor;
+}
+
+/* --- checkbox do sumário --- */
+.checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox__input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox__trilho {
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgb(85, 85, 85);
+  transition: background-color 220ms ease;
+}
+
+.checkbox__bolinha {
+  position: absolute;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.checkbox__input:checked + .checkbox__trilho {
+  background: var(--nav-cinza);
+}
+
+.checkbox__input:checked ~ .checkbox__bolinha {
+  transform: translateX(18px);
+}
+
+.checkbox__input:focus-visible + .checkbox__trilho {
+  outline: 2px solid var(--nav-icone);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --nav-altura: 64px;
+    --nav-altura-encolhida: 52px;
+  }
+  .navbar--encolhida {
+    --nav-escala-y: 0.81;
+    --nav-subida: 6px;
+  }
+  .navbar__conteudo {
+    gap: 10px;
+  }
+  .navbar__botao {
+    padding: 6px 9px;
+    font-size: 13px;
+  }
+  .navbar__logo {
+    height: 30px;
+  }
+  .navbar--encolhida .navbar__logo {
+    height: 24px;
+  }
+}
