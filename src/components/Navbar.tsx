@@ -1,6 +1,6 @@
 import { useReducedMotion } from "framer-motion";
 import MenuConfiguracoes from "./MenuConfiguracoes";
-import { LOGO_ALT, LOGO_SRC, UI, rolarParaTopo } from "../config/constantes";
+import { LOGO_ALT, LOGO_SRC, UI } from "../config/constantes";
 import { usePassouDoScroll } from "../hooks/usePassouDoScroll";
 import "./Navbar.css";
 
